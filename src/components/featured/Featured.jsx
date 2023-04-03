@@ -1,12 +1,31 @@
 import { InfoOutlined, PlayArrow } from "@material-ui/icons";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import "./featured.scss";
 
 function Featured({type}) {
+    const [content,setContent] = useState({});
+    useEffect(()=>{
+        const getRandomContent = async ()=> {
+            try {
+                const res = await axios.get(`/movies/random?type=${type}`,{
+                    headers:{
+                      token:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjMwZWQxMTAxMjhmOWRlYWM5NGEwYSIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY4MDA0MDk4NiwiZXhwIjoxNjgwNDcyOTg2fQ.AhH84AZ0brJRUW3L1l10WIGCZCu_LgCI1f5YAahcE2I"
+                    },
+                  });
+                setContent(res.data[0]);
+            } catch (err) {
+                    console.log(err);
+            }
+        };
+        getRandomContent();
+    },[type]);
+    console.log(content);
   return (
     <div className="featured">
         {type && (
             <div className="category">
-                <span>{type==="movie" ? "Movies" : "Tv Shows"}</span>
+                <span>{type==="movies" ? "Movies" : "Tv Shows"}</span>
                 <select name="genre" id="genre">
                     <option>Genre</option>
                      <option value="hindi">Hindi</option>
@@ -40,10 +59,10 @@ function Featured({type}) {
                 </select>
             </div>
         )}
-        <img src="https://i.ibb.co/0yFYr9t/wallpaperflare-com-wallpaper.jpg" alt="wallpaperflare-com-wallpaper" width="100%"border="0"/>
+        <img src={content.imgTitle} alt="wallpaperflare-com-wallpaper" width="100%"border="0"/>
         <div className="info">
-        <img src="https://i.ibb.co/GQmWtsx/lostinspace-removebg.png" alt="lostinspace-removebg" border="0"/>
-            <span className="description">After crash-landing on an alien planet, the Robinson family fight against all odds to survive and escape, but they're surrounded by hidden dangers.</span>
+        <img src={content.imgSm} alt="lostinspace-removebg" border="0"/>
+            <span className="description">{content.desc}</span>
             <div className="buttons">
                 <button className="play">
                     <PlayArrow/>

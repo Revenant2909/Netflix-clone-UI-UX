@@ -1,20 +1,39 @@
 import { Add, PlayArrow, ThumbDownOutlined, ThumbUpAltOutlined } from "@material-ui/icons";
 import React from "./listItem.scss";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-export default function ListItem({index}){
+export default function ListItem({index,item}){
     const[isHovered,setIsHovered] = useState(false);
-    const trailer = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
+    const[movie,setMovie] = useState({});
+
+    useEffect(()=>{
+      const getMovie = async ()=>{
+        try {
+            const res = await axios.get("/movies/find/"+item ,{
+              headers:{
+                token:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MjMwZWQxMTAxMjhmOWRlYWM5NGEwYSIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY4MDA0MDk4NiwiZXhwIjoxNjgwNDcyOTg2fQ.AhH84AZ0brJRUW3L1l10WIGCZCu_LgCI1f5YAahcE2I"
+              },
+            });
+            setMovie(res.data);
+        } catch (err) {
+              console.log(err);
+        }
+      };
+      getMovie();
+    },[item]);
   return (
+    <Link to={{pathname:"/watch", movie:movie}}>
     <div className="listItem"
     //To center images during hover need to split the size of img including the margin
     style={{left:isHovered && index*225 + index*2.5+2}} 
     onMouseEnter={()=>setIsHovered(true)}
-     onMouseLeave={()=>setIsHovered(false)}>
-       <img src="https://i.ibb.co/Zx1WvMT/image.png" alt="error" border="0"/>
+    onMouseLeave={()=>setIsHovered(false)}>
+       <img src={movie.img} alt="error" border="0"/>
      {isHovered && (
-        <>
-     <video src={trailer} autoPlay={true} loop/>
+       <>
+     <video src={movie.trailer} autoPlay={true} loop/>
     <div className="itemInfo">
         <div className="icons">
             <PlayArrow className="icon"/>
@@ -23,17 +42,16 @@ export default function ListItem({index}){
             <ThumbDownOutlined className="icon"/>
         </div>
         <div className="itemInfoTop">
-            <span>4 Seasons</span>
-            <span className="limit">HD</span>
-            <span className="limit">U/A 16+</span>
+            <span>{movie.duration}</span>
+            <span className="limit">{movie.limit}</span>
+            <span >{movie.year}</span>
         </div>
-        <div className="desc">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-             Asperiores quod.
+        <div className="desc">{movie.desc}
         </div>
-        <div className="genre">Witty·Dramedy·Notable Soundtrack</div>
+        <div className="genre">{movie.genre}</div>
     </div>
     </>  )}
     </div>
+       </Link>
   )
 }
